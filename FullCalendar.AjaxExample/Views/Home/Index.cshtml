@@ -1,0 +1,55 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<link href='/lib/fullcalendar/main.css' rel='stylesheet' />
+
+<select class="form-control" onchange="titleChanged(this)">
+    <option value="">Tümü</option>
+    @foreach (var item in ViewBag.TitleList)
+    {
+        <option value="@item">@item</option>
+    }
+</select>
+<hr />
+<div id='calendar'></div>
+
+
+<script src='/lib/fullcalendar/main.js'></script>
+<script>
+    var title = "";
+    var calendar;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'tr',
+            eventSources: [
+                {
+                    url: '/Home/GetData',
+                    method: 'POST',
+                    extraParams: function () {
+                        return {
+                            title: title
+                        }
+                    },
+                    success: function (response) {
+                        console.log(response);
+                        return response;
+                    },
+                    failure: function () {
+                        alert('there was an error while fetching events!');
+                    }
+                }
+            ]
+        });
+        calendar.render();
+    });
+
+    function titleChanged(e) {
+        title = e.value;
+        calendar.refetchEvents();
+    }
+
+</script>
